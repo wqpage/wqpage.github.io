@@ -1,0 +1,528 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>JQuery,ReactJs,AngularJs 的DOM操作 | 多多Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="王巧">
+    
+    <meta name="description" content="本文将分别使用 jquery，reactjs，angularJs实现从服务端获取json数据后，渲染到页面上，以表格形式展示。公司信息json数据如下：
+[        {cname:”公司A”,ecount:”100人”,position:”上海”},    {cname:”公司B”,ecoun">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml## RSS address." title="多多Blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/catman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/catman.jpg">
+    
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    
+
+
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?null";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    <link href='http://fonts.useso.com/css?family=Tangerine:700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.useso.com/css?family=Covered+By+Your+Grace' rel='stylesheet' type='text/css'>
+<link href='http://fonts.useso.com/css?family=Philosopher' rel='stylesheet' type='text/css'>
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="多多Blog" title="多多Blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="多多Blog">多多Blog</a></h1>
+				<h2 class="blog-motto">一般技��? 一般杂��?</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜單">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/13/angularJsAndReactJs20150413/" title="JQuery,ReactJs,AngularJs 的DOM操作" itemprop="url">JQuery,ReactJs,AngularJs 的DOM操作</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="王巧">王巧</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-13T07:23:57.000Z" itemprop="datePublished">2015-04-13</time>
+    更新日期:<time datetime="2015-04-13T09:04:17.000Z" itemprop="dateModified">2015-04-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目錄</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Jquery操作DOM"><span class="toc-number">1.</span> <span class="toc-text">Jquery操作DOM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ReactJs_定义DOM组件"><span class="toc-number">2.</span> <span class="toc-text">ReactJs 定义DOM组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AngularJs_双向数据绑定"><span class="toc-number">3.</span> <span class="toc-text">AngularJs 双向数据绑定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后"><span class="toc-number">4.</span> <span class="toc-text">最后</span></a></li></ol>
+		</div>
+		
+		<p>本文将分别使用 jquery，reactjs，angularJs实现从服务端获取json数据后，渲染到页面上，以表格形式展示。<br>公司信息json数据如下：</p>
+<p><pre><code><br>[<br>        {cname:”公司A”,ecount:”100人”,position:”上海”},<br>    {cname:”公司B”,ecount:”190人”,position:”南京”},<br>    {cname:”公司C”,ecount:”30人”,position:”北京”},<br>    {cname:”公司D”,ecount:”430人”,position:”合肥”}<br>]<br></code></pre><br>将上面的json数据以表格形式在页面上展示如下:<br><br><img src="pic/table.png" alt="表格"></p>
+<h2 id="Jquery操作DOM">Jquery操作DOM</h2><p>相关代码：</p>
+<pre><code><span class="doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;<span class="title">html</span>&gt;</span>
+<span class="tag">&lt;<span class="title">head</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">link</span> <span class="attribute">rel</span>=<span class="value">"stylesheet"</span> <span class="attribute">href</span>=<span class="value">"http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">style</span>&gt;</span><span class="css">
+        <span class="id">#tableDiv</span><span class="rules">{<span class="rule"><span class="attribute">width</span>:<span class="value"><span class="number">60%</span></span></span>;<span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">20px</span> auto</span></span></span>}
+    </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/javascript"</span> <span class="attribute">src</span>=<span class="value">"http://code.jquery.com/jquery-1.4.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">head</span>&gt;</span>
+<span class="tag">&lt;<span class="title">body</span>&gt;</span>
+
+<span class="tag">&lt;/<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/javascript"</span>&gt;</span><span class="javascript">
+    <span class="keyword">var</span> getData = <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        <span class="comment">//这里应该从服务端获取数据</span>
+        <span class="keyword">return</span> [
+          {cname:<span class="string">"公司A"</span>,ecount:<span class="string">"100人"</span>,position:<span class="string">"上海"</span>},
+          {cname:<span class="string">"公司B"</span>,ecount:<span class="string">"190人"</span>,position:<span class="string">"南京"</span>},
+          {cname:<span class="string">"公司C"</span>,ecount:<span class="string">"30人"</span>,position:<span class="string">"北京"</span>},
+          {cname:<span class="string">"公司D"</span>,ecount:<span class="string">"430人"</span>,position:<span class="string">"合肥"</span>},
+        ]; 
+    };
+    <span class="comment">//渲染DOM</span>
+    <span class="keyword">var</span> renderData=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        $(<span class="string">"body"</span>).empty();<span class="comment">//先清空body里的东西</span>
+        <span class="keyword">var</span> list=getData();<span class="comment">//获取json数据</span>
+        <span class="comment">/*开始拼接dom*/</span>
+        <span class="keyword">var</span> tableDom=
+            <span class="string">'&lt;div id="tableDiv"&gt;'</span>+
+            <span class="string">'&lt;h3&gt;List of Companies&lt;/h3&gt;'</span>+
+            <span class="string">'&lt;table class="table table-striped"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Company Name&lt;/th&gt;&lt;th&gt;Employees&lt;/th&gt;&lt;th&gt;Position&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;'</span>+
+            <span class="string">'&lt;tbody&gt;'</span>;
+        <span class="keyword">for</span>(<span class="keyword">var</span> c <span class="keyword">in</span> list){<span class="comment">//循环遍历json</span>
+            <span class="keyword">var</span> c_dom=<span class="string">'&lt;tr&gt;&lt;td&gt;'</span>+list[c].cname+<span class="string">'&lt;/td&gt;&lt;td&gt;'</span>+list[c].ecount+<span class="string">'&lt;/td&gt;&lt;td&gt;'</span>+list[c].position+<span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>;
+            tableDom+=c_dom;
+        }
+        tableDom+=<span class="string">'&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;'</span>;
+        $(<span class="string">"body"</span>).append(tableDom);
+    }
+    $(<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        renderData();
+    })
+</span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">html</span>&gt;</span>
+</code></pre><p>说明:请求到新的数据之后（比如翻页后），要先将容器（此例中为body）做empty()处理，再将新的数据append到容器中。使浏览器重新渲染页面。</p>
+<h2 id="ReactJs_定义DOM组件">ReactJs 定义DOM组件</h2><p>相关代码：</p>
+<pre><code><span class="xml"><span class="doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;<span class="title">html</span>&gt;</span>
+<span class="tag">&lt;<span class="title">head</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">title</span>&gt;</span>reactJs demo2<span class="tag">&lt;/<span class="title">title</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">link</span> <span class="attribute">rel</span>=<span class="value">"stylesheet"</span> <span class="attribute">href</span>=<span class="value">"http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">style</span>&gt;</span><span class="css">
+        <span class="id">#tableDiv</span></span></span><span class="expression">{<span class="variable">width</span>:60%;<span class="variable">margin</span>: 20<span class="variable">px</span> <span class="variable">auto</span>}</span><span class="xml"><span class="css">
+    </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/javascript"</span> <span class="attribute">src</span>=<span class="value">"react-0.13.1/build/react.min.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/javascript"</span> <span class="attribute">src</span>=<span class="value">"react-0.13.1/build/JSXTransformer.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/jsx"</span>&gt;</span><span class="javascript">
+        <span class="keyword">var</span> CompanyList = React.createClass(</span></span><span class="expression">{
+            <span class="variable">render</span>:<span class="variable">function</span>(){
+                <span class="variable">var</span>  <span class="variable">companies</span> = [];
+                <span class="variable">var</span> <span class="variable">that</span> = <span class="variable">this</span>;
+                <span class="variable">this.props.clist.forEach</span>(<span class="variable">function</span>(<span class="variable">company</span>){
+                    <span class="variable">companies.push</span>(&lt;<span class="variable">Company</span> <span class="variable">company</span>={<span class="variable">company</span>}</span><span class="xml"><span class="javascript"> /&gt;);
+                });
+                <span class="keyword">return</span> (
+                    <span class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"tableDiv"</span>&gt;</span>
+                        <span class="tag">&lt;<span class="title">h3</span>&gt;</span>List of Companies<span class="tag">&lt;/<span class="title">h3</span>&gt;</span>
+                        <span class="tag">&lt;<span class="title">table</span> <span class="attribute">className</span>=<span class="value">"table table-striped"</span> &gt;</span>
+                            <span class="tag">&lt;<span class="title">thead</span>&gt;</span><span class="tag">&lt;<span class="title">tr</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Company Name<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Employees<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Position<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;/<span class="title">tr</span>&gt;</span><span class="tag">&lt;/<span class="title">thead</span>&gt;</span>
+                            <span class="tag">&lt;<span class="title">tbody</span>&gt;</span></span></span></span><span class="expression">{<span class="variable">companies</span>}</span><span class="xml"><span class="javascript">&lt;<span class="regexp">/tbody&gt;
+                        &lt;/</span>table&gt;
+                    <span class="xml"><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+                    );
+            }
+    });
+    var Company = React.createClass(</span></span></span><span class="expression">{
+        <span class="variable">render</span>:<span class="variable">function</span>(){
+            <span class="variable">return</span>(
+                &lt;<span class="variable">tr</span>&gt;
+                    &lt;<span class="variable">td</span>&gt;{<span class="variable">this.props.company.cname</span>}</span><span class="xml"><span class="javascript">&lt;<span class="regexp">/td&gt;
+                    &lt;td&gt;</span></span></span><span class="expression">{<span class="variable">this.props.company.ecount</span>}</span><span class="xml"><span class="javascript">&lt;<span class="regexp">/td&gt;
+                    &lt;td&gt;</span></span></span><span class="expression">{<span class="variable">this.props.company.position</span>}</span><span class="xml"><span class="javascript">&lt;<span class="regexp">/td&gt;
+                &lt;/</span>tr&gt;
+                );
+        }
+    });
+
+    <span class="keyword">var</span> getData=<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span></span><span class="expression">{
+        <span class="variable">return</span> [
+          {<span class="variable">cname</span>:<span class="string">"公司A"</span>,<span class="variable">ecount</span>:<span class="string">"100人"</span>,<span class="variable">position</span>:<span class="string">"上海"</span>}</span><span class="xml"><span class="javascript">,
+          </span></span><span class="expression">{<span class="variable">cname</span>:<span class="string">"公司B"</span>,<span class="variable">ecount</span>:<span class="string">"190人"</span>,<span class="variable">position</span>:<span class="string">"南京"</span>}</span><span class="xml"><span class="javascript">,
+          </span></span><span class="expression">{<span class="variable">cname</span>:<span class="string">"公司C"</span>,<span class="variable">ecount</span>:<span class="string">"30人"</span>,<span class="variable">position</span>:<span class="string">"北京"</span>}</span><span class="xml"><span class="javascript">,
+          </span></span><span class="expression">{<span class="variable">cname</span>:<span class="string">"公司D"</span>,<span class="variable">ecount</span>:<span class="string">"430人"</span>,<span class="variable">position</span>:<span class="string">"合肥"</span>}</span><span class="xml"><span class="javascript">,
+        ];
+    }
+    <span class="keyword">var</span> companylist=getData();
+    React.render(<span class="xml"><span class="tag">&lt;<span class="title">CompanyList</span> <span class="attribute">clist</span>=</span></span></span></span><span class="expression">{<span class="variable">companylist</span>}</span><span class="xml"><span class="javascript"> /&gt;,<span class="built_in">document</span>.body);
+    </span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">head</span>&gt;</span>
+<span class="tag">&lt;<span class="title">body</span>&gt;</span><span class="tag">&lt;/<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">html</span>&gt;</span></span>
+</code></pre><p>注：上例代码中引入的reactjs和JSXTransformer.js 可在<a href="http://facebook.github.io/react/" target="_blank" rel="external">http://facebook.github.io/react/</a>  网站中下载<br><br>说明：reactJs 是 Facebook 推出的一个用来构建用户界面的 JavaScript 库。他的目标就是UI组件。在此例中，定义了两个组件：<br>Company和CompanyList。Company为一行UI，CompanyList为整个table UI。<br><br>React 最大的特色是当View层在渲染的时候,它不会直接从模板里面去构建一个DOM节点. 首先, 它创建一些暂时的, 虚拟的 DOM, 然后和真实的DOM还有创建的Diffs一起做对比, 然后才决定需不需要渲染.</p>
+<h2 id="AngularJs_双向数据绑定">AngularJs 双向数据绑定</h2><p>html代码如下：</p>
+<pre><code><span class="doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;<span class="title">html</span> <span class="attribute">ng-app</span>=<span class="value">"TableModule"</span>&gt;</span>
+<span class="tag">&lt;<span class="title">head</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">title</span>&gt;</span>reactJs demo2<span class="tag">&lt;/<span class="title">title</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">link</span> <span class="attribute">rel</span>=<span class="value">"stylesheet"</span> <span class="attribute">href</span>=<span class="value">"http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">style</span>&gt;</span><span class="css">
+        <span class="id">#tableDiv</span><span class="rules">{<span class="rule"><span class="attribute">width</span>:<span class="value"><span class="number">60%</span></span></span>;<span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">20px</span> auto</span></span></span>}
+    </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"http://code.angularjs.org/angular-1.0.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/javascript"</span> <span class="attribute">src</span>=<span class="value">"table.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+/head&gt;
+<span class="tag">&lt;<span class="title">body</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"tableDiv"</span> <span class="attribute">ng-controller</span>=<span class="value">"TableController"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">h3</span>&gt;</span>List of Companies<span class="tag">&lt;/<span class="title">h3</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">table</span> <span class="attribute">class</span>=<span class="value">"table table-striped"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">thead</span>&gt;</span><span class="tag">&lt;<span class="title">tr</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Company Name<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Employees<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;<span class="title">th</span>&gt;</span>Position<span class="tag">&lt;/<span class="title">th</span>&gt;</span><span class="tag">&lt;/<span class="title">tr</span>&gt;</span><span class="tag">&lt;/<span class="title">thead</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">tbody</span>&gt;</span>
+                <span class="tag">&lt;<span class="title">tr</span> <span class="attribute">ng-repeat</span>=<span class="value">"cpn in companies"</span>&gt;</span>
+                    <span class="tag">&lt;<span class="title">td</span>&gt;</span><span class="comment"></span><span class="tag">&lt;/<span class="title">td</span>&gt;</span>
+                    <span class="tag">&lt;<span class="title">td</span>&gt;</span><span class="comment"></span><span class="tag">&lt;/<span class="title">td</span>&gt;</span>
+                    <span class="tag">&lt;<span class="title">td</span>&gt;</span><span class="comment"></span><span class="tag">&lt;/<span class="title">td</span>&gt;</span>
+                <span class="tag">&lt;/<span class="title">tr</span>&gt;</span>
+            <span class="tag">&lt;/<span class="title">tbody</span>&gt;</span>
+
+        <span class="tag">&lt;/<span class="title">table</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">html</span>&gt;</span>
+</code></pre><p>table.js如下：</p>
+<pre><code><span class="keyword">var</span> tableModule=angular.module(<span class="string">'TableModule'</span>,[]);
+tableModule.controller(<span class="string">"TableController"</span>,[<span class="string">"$scope"</span>,<span class="function"><span class="keyword">function</span><span class="params">(<span class="variable">$scope</span>)</span></span>{
+    <span class="keyword">var</span> getData=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        <span class="keyword">return</span> [
+          {cname:<span class="string">"公司A"</span>,ecount:<span class="string">"100人"</span>,position:<span class="string">"上海"</span>},
+          {cname:<span class="string">"公司B"</span>,ecount:<span class="string">"190人"</span>,position:<span class="string">"南京"</span>},
+          {cname:<span class="string">"公司C"</span>,ecount:<span class="string">"30人"</span>,position:<span class="string">"北京"</span>},
+          {cname:<span class="string">"公司D"</span>,ecount:<span class="string">"430人"</span>,position:<span class="string">"合肥"</span>},
+        ];
+    };
+    <span class="keyword">var</span> renderData=<span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        <span class="variable">$scope</span>.companies=[];<span class="comment">//初始化</span>
+        <span class="variable">$scope</span>.companies=getData();
+
+    }
+    renderData();
+}])
+</code></pre><p>说明：此例使用angularJS双向数据绑定特性（只用到了单向）。controller里改变companies的值，使页面上的数据得到改变。</p>
+<h2 id="最后">最后</h2><p>本文只将同一功能使用不同js库/框架实现。reactJs和angularJs哪种比较好用，不能通过单单一个例子而定。在合适的功能需求中使用合适的框架/库 就好。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/AngularJs/">AngularJs</a><a href="/tags/ReactJs/">ReactJs</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://yoursite.com/2015/04/13/angularJsAndReactJs20150413/" data-title="JQuery,ReactJs,AngularJs 的DOM操作 | 多多Blog" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/03/20/badHabit150320/"  title="可能害你丢掉工作的14个坏习惯">
+ <strong>NEXT:</strong><br/> 
+ <span>可能害你丢掉工作的14个坏习惯
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="顯示側邊欄"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目錄</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Jquery操作DOM"><span class="toc-number">1.</span> <span class="toc-text">Jquery操作DOM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ReactJs_定义DOM组件"><span class="toc-number">2.</span> <span class="toc-text">ReactJs 定义DOM组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AngularJs_双向数据绑定"><span class="toc-number">3.</span> <span class="toc-text">AngularJs 双向数据绑定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后"><span class="toc-number">4.</span> <span class="toc-text">最后</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隱藏側邊欄"></a></div>
+<aside class="clearfix">
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">標簽雲</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/AngularJs/" style="font-size: NaNpx;">AngularJs</a><a href="/tags/Hexo/" style="font-size: NaNpx;">Hexo</a><a href="/tags/ReactJs/" style="font-size: NaNpx;">ReactJs</a><a href="/tags/blog/" style="font-size: NaNpx;">blog</a><a href="/tags/job/" style="font-size: NaNpx;">job</a>
+    </div>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml## RSS address." target="_blank" title="rss">RSS 訂閱</a>
+</div>
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分類</p>
+		<ul>
+		
+			<li><a href="/categories/job/" title="job">job<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">標簽</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/AngularJs/" title="AngularJs">AngularJs<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		
+			<li><a href="/tags/ReactJs/" title="ReactJs">ReactJs<sup>1</sup></a></li>
+		
+			<li><a href="/tags/blog/" title="blog">blog<sup>1</sup></a></li>
+		
+			<li><a href="/tags/job/" title="job">job<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情鏈接</p>
+    <ul>
+      <li><a href="http://blog.leafh.pw" target="_blank" title="Leaf Hsiao">Leaf's Blog</a></li>
+      <li><a href="http://hexo.io" target="_blank" title="Hexo">Hexo</a></li>
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/leaf-hsiao/catman" target="_blank" title="Catman">Catman</a> © 2015 
+		
+		<a href="http://yoursite.com" target="_blank" title="王巧">王巧</a>
+		
+		</p>
+</div>
+</footer>
+    <div id="top" style="position:fixed;bottom:100px;right:30px;cursor: pointer;">
+        <a title="top"><img src="/img/top.png"/ width="50px"></a>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,208-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      m = $('#main'),
+      a = $('#asidepart'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside'),
+      w  = $(window).width();
+  if ( w>1070 ) {
+  	m.addClass('moveMain');
+  	a.css('display', 'none').addClass('fadeIn');
+  	o.css('display', 'block');
+  };
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+  	if ( w>1070 ) {
+  	  ta.css('display', 'block').addClass('fadeIn');
+  	};
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,250-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+<script type="text/javascript">
+  (function($) {
+  var upperLimit = 1000;
+  var scrollElem = $('#top');
+  var scrollSpeed = 500;
+  scrollElem.hide();
+  $(window).scroll(function () {
+  var scrollTop = $(document).scrollTop();
+  if ( scrollTop > upperLimit ) {
+  $(scrollElem).stop().fadeTo(300, 1);
+  }
+  else{
+    $(scrollElem).stop().fadeTo(300, 0);
+  }
+});
+$(scrollElem).click(function(){
+$('html, body').animate({scrollTop:0}, scrollSpeed); return false;
+});
+})(jQuery);
+</script> 
+
+
+
+
+
+
+  </body>
+</html>
